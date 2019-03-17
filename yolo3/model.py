@@ -405,7 +405,7 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
         xy_loss = K.sum(xy_loss) / mf
         wh_loss = K.sum(wh_loss) / mf
         
-        			confidence_loss, indices = tf.math.top_k(confidence_loss, k=60, sorted=True)
+        confidence_loss, indices = tf.math.top_k(confidence_loss, k=60, sorted=True)
 
         confidence_loss = K.sum(confidence_loss) / mf
         class_loss = K.sum(class_loss) / mf
