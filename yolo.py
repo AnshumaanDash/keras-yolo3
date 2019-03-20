@@ -179,6 +179,7 @@ def detect_video(yolo, video_path, output_path=""):
     video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     isOutput = True if output_path != "" else False
+    print()
     if isOutput:
         print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
         out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
@@ -202,8 +203,8 @@ def detect_video(yolo, video_path, output_path=""):
             curr_fps = 0
         cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=0.50, color=(255, 0, 0), thickness=2)
-        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        cv2.imshow("result", result)
+        #cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        #cv2.imshow("result", result)
         if isOutput:
             out.write(result)
         if cv2.waitKey(1) & 0xFF == ord('q'):
