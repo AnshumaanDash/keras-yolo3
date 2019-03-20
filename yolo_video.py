@@ -58,7 +58,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        "--output", nargs='?', type=str, default="/content/gdrive/My Drive/output.mp4",
+        "--output", nargs='?', type=str, default="./output.mp4",
         help = "[Optional] Video output path"
     )
 

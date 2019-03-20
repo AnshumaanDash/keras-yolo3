@@ -208,6 +208,7 @@ def detect_video(yolo, video_path, output_path=""):
         #cv2.imshow("result", result)
         if isOutput:
             out.write(result)
+            print('Output ready!!!')
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     yolo.close_session()
