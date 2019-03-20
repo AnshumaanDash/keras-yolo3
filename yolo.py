@@ -189,7 +189,7 @@ def detect_video(yolo, video_path, output_path=""):
     prev_time = timer()
     while True:
         return_value, frame = vid.read()
-        if not frame.any(): break
+        if frame is None: break
         image = Image.fromarray(frame)
         image = yolo.detect_image(image)
         result = np.asarray(image)
