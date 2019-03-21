@@ -406,7 +406,7 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
         background_loss = (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
 
         # Extract top 50 hard examples
-        topk, indices = tf.nn.top_k(input=background_loss, k=k)
+        topk, indices = tf.nn.top_k(input=background_loss[...,:], k=k)
 
         # Reshape to add to loss
         indices = tf.reshape(indices, [k, 1])
