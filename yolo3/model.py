@@ -342,7 +342,7 @@ def box_iou(b1, b2):
     return iou
 
 
-def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
+def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=50):
     '''Return yolo_loss tensor
 
     Parameters
@@ -398,13 +398,27 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
         # K.binary_crossentropy is helpful to avoid exp overflow.
         xy_loss = object_mask * box_loss_scale * K.binary_crossentropy(raw_true_xy, raw_pred[...,0:2], from_logits=True)
         wh_loss = object_mask * box_loss_scale * 0.5 * K.square(raw_true_wh-raw_pred[...,2:4])
-        confidence_loss = object_mask * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True)+ \
-            (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
+
+
+        ######################### HARD NEGATIVE MINING ##########################
+
+        # Extract only the losses due to background class
+        background_loss = (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
+
+        # Extract top 50 hard examples
+        topk, indices = tf.nn.top_k(input=background_loss, k=k)
+
+        # Reshape to add to loss
+        indices = tf.reshape(indices, [k, 1])
+        background_loss = tf.scatter_nd_update(tf.Variable(tf.zeros_like(background_loss), trainable=False), indices, topk)
+
+        # Foreground + top_k Background losses
+        confidence_loss = object_mask * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) + background_loss
+            
         class_loss = object_mask * K.binary_crossentropy(true_class_probs, raw_pred[...,5:], from_logits=True)
 
         xy_loss = K.sum(xy_loss) / mf
         wh_loss = K.sum(wh_loss) / mf
-        print(confidence_loss.shape)
 
         #confidence_loss, indices = tf.math.top_k(confidence_loss, k=60, sorted=True)
 
