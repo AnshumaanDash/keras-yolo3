@@ -362,7 +362,6 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
     yolo_outputs = args[:num_layers]
     y_true = args[num_layers:]
     anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
-    print(yolo_outputs[0].shape)
     input_shape = K.cast(K.shape(yolo_outputs[0])[1:3] * 32, K.dtype(y_true[0]))
     grid_shapes = [K.cast(K.shape(yolo_outputs[l])[1:3], K.dtype(y_true[0])) for l in range(num_layers)]
     loss = 0
@@ -407,10 +406,11 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
         background_loss = (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
 
         # Extract top k hard examples
-        print(background_loss[0,0,0,0,:])
-        print(background_loss[0,0,0,1,:])
-
-        topk, indices = tf.nn.top_k(input=background_loss[...,:], k=k)
+        b, h, w, p = tf.shape(tf.squeeze(background_loss))
+	background_loss = tf.reshape(1, b*h*w*p)
+        print(background_loss.shape)
+        topk, indices = tf.nn.top_k(input=background_loss, k=k)
+        print(topk.shape)
 
         # Reshape to add to loss
         indices = tf.reshape(indices, [k, 1])
