@@ -422,7 +422,7 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
         wh_loss = K.sum(wh_loss) / mf
 
         confidence_loss_background = K.sum(topk_background_loss) /mf
-        confidence_loss = confidence_loss_background + K.sum(confidence_loss) / mf
+        confidence_loss = confidence_loss_background + K.sum(confidence_loss_foreground) / mf
         class_loss = K.sum(class_loss) / mf
         loss += xy_loss + wh_loss + confidence_loss + class_loss
         if print_loss:
