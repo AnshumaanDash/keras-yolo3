@@ -342,7 +342,7 @@ def box_iou(b1, b2):
     return iou
 
 
-def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=50):
+def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=True, k=50):
     '''Return yolo_loss tensor
 
     Parameters
@@ -405,13 +405,9 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
         # Extract only the losses due to background class
         background_loss = (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
 
-        # Extract top k hard examples
+        # Extract top k hard background examples
         background_loss = tf.reshape(background_loss, [1, -1])
         topk_background_loss, indices = tf.nn.top_k(input=background_loss, k=k)
-
-        # Reshape to add to loss
-        #indices = tf.reshape(indices, [k, 1])
-        #background_loss = tf.scatter_nd_update(tf.Variable(tf.zeros_like(background_loss), trainable=False), indices, topk)
 
         # Foreground objectness loss
         confidence_loss_foreground = object_mask * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True)
