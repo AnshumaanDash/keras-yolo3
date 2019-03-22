@@ -405,9 +405,9 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
         # Extract only the losses due to background class
         background_loss = (1-object_mask) * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
 
-        # Extract top 50 hard examples
-        with sess.as_default():
-                print(type(background_loss.eval()))
+        # Extract top k hard examples
+        print(background_loss[0,:,:,:,:])
+
         topk, indices = tf.nn.top_k(input=background_loss[...,:], k=k)
 
         # Reshape to add to loss
