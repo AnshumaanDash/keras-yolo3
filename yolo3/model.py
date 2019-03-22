@@ -407,7 +407,7 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
 
         # Extract top k hard examples
         b, h, w, p = tf.shape(tf.squeeze(background_loss))
-	background_loss = tf.reshape(1, b*h*w*p)
+	background_loss = tf.reshape(background_loss, [1, b*h*w*p])
         print(background_loss.shape)
         topk, indices = tf.nn.top_k(input=background_loss, k=k)
         print(topk.shape)
