@@ -407,25 +407,22 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False, k=
 
         # Extract top k hard examples
         background_loss = tf.reshape(background_loss, [1, -1])
-        print(background_loss.shape)
-        topk, indices = tf.nn.top_k(input=background_loss, k=k)
-        print(topk.shape)
+        topk_background_loss, indices = tf.nn.top_k(input=background_loss, k=k)
 
         # Reshape to add to loss
-        indices = tf.reshape(indices, [k, 1])
-        background_loss = tf.scatter_nd_update(tf.Variable(tf.zeros_like(background_loss), trainable=False), indices, topk)
+        #indices = tf.reshape(indices, [k, 1])
+        #background_loss = tf.scatter_nd_update(tf.Variable(tf.zeros_like(background_loss), trainable=False), indices, topk)
 
-        # Foreground + top_k Background losses
-        confidence_loss = object_mask * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True) + background_loss
+        # Foreground objectness loss
+        confidence_loss_foreground = object_mask * K.binary_crossentropy(object_mask, raw_pred[...,4:5], from_logits=True)
             
         class_loss = object_mask * K.binary_crossentropy(true_class_probs, raw_pred[...,5:], from_logits=True)
 
         xy_loss = K.sum(xy_loss) / mf
         wh_loss = K.sum(wh_loss) / mf
 
-        #confidence_loss, indices = tf.math.top_k(confidence_loss, k=60, sorted=True)
-
-        confidence_loss = K.sum(confidence_loss) / mf
+        confidence_loss_background = K.sum(topk_background_loss) /mf
+        confidence_loss = confidence_loss_background + K.sum(confidence_loss) / mf
         class_loss = K.sum(class_loss) / mf
         loss += xy_loss + wh_loss + confidence_loss + class_loss
         if print_loss:
