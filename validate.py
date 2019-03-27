@@ -65,13 +65,13 @@ class Validate():
             for i in sorted_inds:
 
                 label_mask = (pred_labels[i] == true_labels)
-                print(f'label mask: {label_mask}')
-                print(f'repeat mask: {repeat_mask}')
-                print(f'& operationn result: {(repeat_mask)&(label_mask)}')
+                #print(f'label mask: {label_mask}')
+                #print(f'repeat mask: {repeat_mask}')
+                #print(f'& operationn result: {(repeat_mask)&(label_mask)}')
                 index_subset = global_index[(repeat_mask)&(label_mask)]
-                print(f'index subset: {index_subset}')
+                #print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
-                print(f'box subset: {true_boxes_subset}')
+                #print(f'box subset: {true_boxes_subset}')
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
