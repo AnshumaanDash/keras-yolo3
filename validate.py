@@ -50,7 +50,8 @@ class Validate():
             repeat_mask = [True]*len(true_boxes)
             matched_labels = []
             global_index = np.arange(len(true_labels))
-
+            true_boxes = np.array(true_boxes)
+            true_labels = np.array(true_labels)
 
             image_results = []
             image_labels = [0]*self.num_classes
@@ -68,7 +69,7 @@ class Validate():
                 index_subset = global_index[(repeat_mask)&(label_mask)]
                 print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
-
+                print(f'box subset: {true_boxes_subset}')
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
