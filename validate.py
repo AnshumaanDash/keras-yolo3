@@ -23,7 +23,7 @@ class Validate():
         self.anchors = self.get_anchors(self.anchors_path)
         self.score = 0.3
         self.iou = 0.45
-        self.gpu_num
+        self.gpu_num = 1
 
         self.input_shape = (416,416) # multiple of 32, hw
         self.sess = K.get_session()
