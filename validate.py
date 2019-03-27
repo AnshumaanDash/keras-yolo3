@@ -33,7 +33,7 @@ class Validate():
         
         detection_results = []
         detection_labels = np.array([0]*self.num_classes) 
-        data_gen = self.get_generator()
+        data_get = self.get_generator()
         
         # sanity check ############################################
         image, y_pred = next(iter(data_get))
