@@ -62,7 +62,11 @@ class Validate():
             for i in sorted_inds:
 
                 label_mask = (pred_labels[i] == true_labels)
+                print(f'label mask: {label_mask}')
+                print(f'repeat mask: {repeat_mask}')
+                print(f'& operationn result: {(repeat_mask)&(label_mask)}')
                 index_subset = global_index[(repeat_mask)&(label_mask)]
+                print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
 
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
@@ -349,4 +353,30 @@ class Validate():
                 len(self.class_names), self.input_image_shape,
                 score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
+
+    def _find_detection(self, q_box, boxes, global_index):
+
+        if boxes.size == 0:
+            #print('EMPTY BOXES')
+            return -1
+
+        ious = list(map(lambda x: compute_iou(q_box, x), boxes))
+
+        max_iou_index = np.argmax( ious )
+
+        if ious[max_iou_index] > self.iou:
+            return global_index[max_iou_index]
+
+        return -1
+
+    def compute_iou(bb_1, bb_2):
+
+        xa0, ya0, xa1, ya1 = bb_1
+        xb0, yb0, xb1, yb1 = bb_2
+
+        intersec = (min([xa1, xb1]) - max([xa0, xb0]))*(min([ya1, yb1]) - max([ya0, yb0]))
+
+        union = (xa1 - xa0)*(ya1 - ya0) + (xb1 - xb0)*(yb1 - yb0) - intersec
+
+        return intersec / union
 
