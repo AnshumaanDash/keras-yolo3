@@ -53,7 +53,7 @@ class Validate():
 
 
             image_results = []
-            image_labels = [0]*YoloParams.NUM_CLASSES
+            image_labels = [0]*self.num_classes
 
             for tl in true_labels:
                 image_labels[tl] += 1
