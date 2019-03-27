@@ -77,6 +77,12 @@ If you want to use original pretrained weights for YOLOv3:
     3. `python convert.py -w darknet53.cfg darknet53.weights model_data/darknet53_weights.h5`  
     4. use model_data/darknet53_weights.h5 in train.py
 
+## mAP Calculation
+1. Make sure you have run the annotation file.
+      For VOC, it is `python voc_annotation.py`
+
+2. Run the file  `python calculateMAP.py`
+
 ---
 
 ## Some issues to know
