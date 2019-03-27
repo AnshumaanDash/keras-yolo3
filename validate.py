@@ -217,78 +217,78 @@ class Validate():
         return self.data_generator(annotation_lines, batch_size, input_shape, anchors, num_classes)
     
     def preprocess_true_boxes(self, true_boxes, input_shape, anchors, num_classes):
-    '''Preprocess true boxes to training input format
-    Parameters
-    ----------
-    true_boxes: array, shape=(m, T, 5)
-        Absolute x_min, y_min, x_max, y_max, class_id relative to input_shape.
-    input_shape: array-like, hw, multiples of 32
-    anchors: array, shape=(N, 2), wh
-    num_classes: integer
-    Returns
-    -------
-    bounding_boxes: list of lists containing bounding boxes
-    class_labels: list containing class labels
-    '''
-    assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
-    
-    bounding_boxes = []
-    class_labels = []
-    num_layers = len(anchors)//3 # default setting
-    anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
+		'''Preprocess true boxes to training input format
+		Parameters
+		----------
+		true_boxes: array, shape=(m, T, 5)
+		    Absolute x_min, y_min, x_max, y_max, class_id relative to input_shape.
+		input_shape: array-like, hw, multiples of 32
+		anchors: array, shape=(N, 2), wh
+		num_classes: integer
+		Returns
+		-------
+		bounding_boxes: list of lists containing bounding boxes
+		class_labels: list containing class labels
+		'''
+		assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
+		
+		bounding_boxes = []
+		class_labels = []
+		num_layers = len(anchors)//3 # default setting
+		anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
 
-    true_boxes = np.array(true_boxes, dtype='float32')
-    input_shape = np.array(input_shape, dtype='int32')
-    boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
-    boxes_wh = true_boxes[..., 2:4] - true_boxes[..., 0:2]
-    true_boxes[..., 0:2] = boxes_xy/input_shape[::-1]
-    true_boxes[..., 2:4] = boxes_wh/input_shape[::-1]
+		true_boxes = np.array(true_boxes, dtype='float32')
+		input_shape = np.array(input_shape, dtype='int32')
+		boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
+		boxes_wh = true_boxes[..., 2:4] - true_boxes[..., 0:2]
+		true_boxes[..., 0:2] = boxes_xy/input_shape[::-1]
+		true_boxes[..., 2:4] = boxes_wh/input_shape[::-1]
 
-    m = true_boxes.shape[0]
-    grid_shapes = [input_shape//{0:32, 1:16, 2:8}[l] for l in range(num_layers)]
-    y_true = [np.zeros((m,grid_shapes[l][0],grid_shapes[l][1],len(anchor_mask[l]),5+num_classes),
-        dtype='float32') for l in range(num_layers)]
+		m = true_boxes.shape[0]
+		grid_shapes = [input_shape//{0:32, 1:16, 2:8}[l] for l in range(num_layers)]
+		y_true = [np.zeros((m,grid_shapes[l][0],grid_shapes[l][1],len(anchor_mask[l]),5+num_classes),
+		    dtype='float32') for l in range(num_layers)]
 
-    # Expand dim to apply broadcasting.
-    anchors = np.expand_dims(anchors, 0)
-    anchor_maxes = anchors / 2.
-    anchor_mins = -anchor_maxes
-    valid_mask = boxes_wh[..., 0]>0
+		# Expand dim to apply broadcasting.
+		anchors = np.expand_dims(anchors, 0)
+		anchor_maxes = anchors / 2.
+		anchor_mins = -anchor_maxes
+		valid_mask = boxes_wh[..., 0]>0
 
-    for b in range(m):
-        # Discard zero rows.
-        wh = boxes_wh[b, valid_mask[b]]
-        if len(wh)==0: continue
-        # Expand dim to apply broadcasting.
-        wh = np.expand_dims(wh, -2)
-        box_maxes = wh / 2.
-        box_mins = -box_maxes
+		for b in range(m):
+		    # Discard zero rows.
+		    wh = boxes_wh[b, valid_mask[b]]
+		    if len(wh)==0: continue
+		    # Expand dim to apply broadcasting.
+		    wh = np.expand_dims(wh, -2)
+		    box_maxes = wh / 2.
+		    box_mins = -box_maxes
 
-        intersect_mins = np.maximum(box_mins, anchor_mins)
-        intersect_maxes = np.minimum(box_maxes, anchor_maxes)
-        intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
-        intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
-        box_area = wh[..., 0] * wh[..., 1]
-        anchor_area = anchors[..., 0] * anchors[..., 1]
-        iou = intersect_area / (box_area + anchor_area - intersect_area)
+		    intersect_mins = np.maximum(box_mins, anchor_mins)
+		    intersect_maxes = np.minimum(box_maxes, anchor_maxes)
+		    intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
+		    intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
+		    box_area = wh[..., 0] * wh[..., 1]
+		    anchor_area = anchors[..., 0] * anchors[..., 1]
+		    iou = intersect_area / (box_area + anchor_area - intersect_area)
 
-        # Find best anchor for each true box
-        best_anchor = np.argmax(iou, axis=-1)
+		    # Find best anchor for each true box
+		    best_anchor = np.argmax(iou, axis=-1)
 
-        for t, n in enumerate(best_anchor):
-            for l in range(num_layers):
-                if n in anchor_mask[l]:
-                    i = np.floor(true_boxes[b,t,0]*grid_shapes[l][1]).astype('int32')
-                    j = np.floor(true_boxes[b,t,1]*grid_shapes[l][0]).astype('int32')
-                    k = anchor_mask[l].index(n)
-                    c = true_boxes[b,t, 4].astype('int32')
-                    class_labels.append(c)
-                    bounding_boxes.append(list(true_boxes[b,t,0:4]))
-                    y_true[l][b, j, i, k, 0:4] = true_boxes[b,t, 0:4]
-                    y_true[l][b, j, i, k, 4] = 1
-                    y_true[l][b, j, i, k, 5+c] = 1
+		    for t, n in enumerate(best_anchor):
+		        for l in range(num_layers):
+		            if n in anchor_mask[l]:
+		                i = np.floor(true_boxes[b,t,0]*grid_shapes[l][1]).astype('int32')
+		                j = np.floor(true_boxes[b,t,1]*grid_shapes[l][0]).astype('int32')
+		                k = anchor_mask[l].index(n)
+		                c = true_boxes[b,t, 4].astype('int32')
+		                class_labels.append(c)
+		                bounding_boxes.append(list(true_boxes[b,t,0:4]))
+		                y_true[l][b, j, i, k, 0:4] = true_boxes[b,t, 0:4]
+		                y_true[l][b, j, i, k, 4] = 1
+		                y_true[l][b, j, i, k, 5+c] = 1
 
-    return bounding_boxes, class_labels
+		return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
         '''loads the classes'''
@@ -305,43 +305,43 @@ class Validate():
         return np.array(anchors).reshape(-1, 2)
 
     def generate():
-            model_path = os.path.expanduser(self.model_path)
-            assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
+        model_path = os.path.expanduser(self.model_path)
+        assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
 
-            # Load model, or construct model and load weights.
-            num_anchors = len(self.anchors)
-            num_classes = len(self.class_names)
-            is_tiny_version = num_anchors==6 # default setting
-            try:
-                self.yolo_model = load_model(self.model_path, compile=False)
-            except:
-                self.yolo_model = tiny_yolo_body(Input(shape=(None,None,3)), num_anchors//2, num_classes) \
-                    if is_tiny_version else yolo_body(Input(shape=(None,None,3)), num_anchors//3, num_classes)
-                self.yolo_model.load_weights(self.model_path) # make sure model, anchors and classes match
-            else:
-                assert self.yolo_model.layers[-1].output_shape[-1] == \
-                    num_anchors/len(self.yolo_model.output) * (num_classes + 5), \
-                    'Mismatch between model and given anchor and class sizes'
+        # Load model, or construct model and load weights.
+        num_anchors = len(self.anchors)
+        num_classes = len(self.class_names)
+        is_tiny_version = num_anchors==6 # default setting
+        try:
+            self.yolo_model = load_model(self.model_path, compile=False)
+        except:
+            self.yolo_model = tiny_yolo_body(Input(shape=(None,None,3)), num_anchors//2, num_classes) \
+                if is_tiny_version else yolo_body(Input(shape=(None,None,3)), num_anchors//3, num_classes)
+            self.yolo_model.load_weights(self.model_path) # make sure model, anchors and classes match
+        else:
+            assert self.yolo_model.layers[-1].output_shape[-1] == \
+                num_anchors/len(self.yolo_model.output) * (num_classes + 5), \
+                'Mismatch between model and given anchor and class sizes'
 
-            print('{} model, anchors, and classes loaded.'.format(self.model_path))
+        print('{} model, anchors, and classes loaded.'.format(self.model_path))
 
-            # Generate colors for drawing bounding boxes.
-            hsv_tuples = [(x / len(self.class_names), 1., 1.)
-                          for x in range(len(self.class_names))]
-            self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
-            self.colors = list(
-                map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
-                    self.colors))
-            np.random.seed(10101)  # Fixed seed for consistent colors across runs.
-            np.random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
-            np.random.seed(None)  # Reset seed to default.
+        # Generate colors for drawing bounding boxes.
+        hsv_tuples = [(x / len(self.class_names), 1., 1.)
+                      for x in range(len(self.class_names))]
+        self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+        self.colors = list(
+            map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
+                self.colors))
+        np.random.seed(10101)  # Fixed seed for consistent colors across runs.
+        np.random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
+        np.random.seed(None)  # Reset seed to default.
 
-            # Generate output tensor targets for filtered bounding boxes.
-            self.input_image_shape = K.placeholder(shape=(2, ))
-            if self.gpu_num>=2:
-                self.yolo_model = multi_gpu_model(self.yolo_model, gpus=self.gpu_num)
-            boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
-                    len(self.class_names), self.input_image_shape,
-                    score_threshold=self.score, iou_threshold=self.iou)
-            return boxes, scores, classes
+        # Generate output tensor targets for filtered bounding boxes.
+        self.input_image_shape = K.placeholder(shape=(2, ))
+        if self.gpu_num>=2:
+            self.yolo_model = multi_gpu_model(self.yolo_model, gpus=self.gpu_num)
+        boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
+                len(self.class_names), self.input_image_shape,
+                score_threshold=self.score, iou_threshold=self.iou)
+        return boxes, scores, classes
 
