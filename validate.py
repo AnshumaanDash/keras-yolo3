@@ -1,6 +1,6 @@
 import numpy as np
-import os
 import keras.backend as K
+import os
 from keras.layers import Input, Lambda
 from keras.models import load_model
 from yolo3.utils import get_random_data
@@ -26,6 +26,8 @@ class Validate():
         self.input_shape = (416,416) # multiple of 32, hw
         self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
+        
+        self.detect_all()
         
     def detect_all(self):
         
@@ -217,78 +219,78 @@ class Validate():
         return self.data_generator(annotation_lines, batch_size, input_shape, anchors, num_classes)
     
     def preprocess_true_boxes(self, true_boxes, input_shape, anchors, num_classes):
-		'''Preprocess true boxes to training input format
-		Parameters
-		----------
-		true_boxes: array, shape=(m, T, 5)
-		    Absolute x_min, y_min, x_max, y_max, class_id relative to input_shape.
-		input_shape: array-like, hw, multiples of 32
-		anchors: array, shape=(N, 2), wh
-		num_classes: integer
-		Returns
-		-------
-		bounding_boxes: list of lists containing bounding boxes
-		class_labels: list containing class labels
-		'''
-		assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
-		
-		bounding_boxes = []
-		class_labels = []
-		num_layers = len(anchors)//3 # default setting
-		anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
+        '''Preprocess true boxes to training input format
+        Parameters
+        ----------
+        true_boxes: array, shape=(m, T, 5)
+            Absolute x_min, y_min, x_max, y_max, class_id relative to input_shape.
+        input_shape: array-like, hw, multiples of 32
+        anchors: array, shape=(N, 2), wh
+        num_classes: integer
+        Returns
+        -------
+        bounding_boxes: list of lists containing bounding boxes
+        class_labels: list containing class labels
+        '''
+        assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
 
-		true_boxes = np.array(true_boxes, dtype='float32')
-		input_shape = np.array(input_shape, dtype='int32')
-		boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
-		boxes_wh = true_boxes[..., 2:4] - true_boxes[..., 0:2]
-		true_boxes[..., 0:2] = boxes_xy/input_shape[::-1]
-		true_boxes[..., 2:4] = boxes_wh/input_shape[::-1]
+        bounding_boxes = []
+        class_labels = []
+        num_layers = len(anchors)//3 # default setting
+        anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
 
-		m = true_boxes.shape[0]
-		grid_shapes = [input_shape//{0:32, 1:16, 2:8}[l] for l in range(num_layers)]
-		y_true = [np.zeros((m,grid_shapes[l][0],grid_shapes[l][1],len(anchor_mask[l]),5+num_classes),
-		    dtype='float32') for l in range(num_layers)]
+        true_boxes = np.array(true_boxes, dtype='float32')
+        input_shape = np.array(input_shape, dtype='int32')
+        boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
+        boxes_wh = true_boxes[..., 2:4] - true_boxes[..., 0:2]
+        true_boxes[..., 0:2] = boxes_xy/input_shape[::-1]
+        true_boxes[..., 2:4] = boxes_wh/input_shape[::-1]
 
-		# Expand dim to apply broadcasting.
-		anchors = np.expand_dims(anchors, 0)
-		anchor_maxes = anchors / 2.
-		anchor_mins = -anchor_maxes
-		valid_mask = boxes_wh[..., 0]>0
+        m = true_boxes.shape[0]
+        grid_shapes = [input_shape//{0:32, 1:16, 2:8}[l] for l in range(num_layers)]
+        y_true = [np.zeros((m,grid_shapes[l][0],grid_shapes[l][1],len(anchor_mask[l]),5+num_classes),
+            dtype='float32') for l in range(num_layers)]
 
-		for b in range(m):
-		    # Discard zero rows.
-		    wh = boxes_wh[b, valid_mask[b]]
-		    if len(wh)==0: continue
-		    # Expand dim to apply broadcasting.
-		    wh = np.expand_dims(wh, -2)
-		    box_maxes = wh / 2.
-		    box_mins = -box_maxes
+        # Expand dim to apply broadcasting.
+        anchors = np.expand_dims(anchors, 0)
+        anchor_maxes = anchors / 2.
+        anchor_mins = -anchor_maxes
+        valid_mask = boxes_wh[..., 0]>0
 
-		    intersect_mins = np.maximum(box_mins, anchor_mins)
-		    intersect_maxes = np.minimum(box_maxes, anchor_maxes)
-		    intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
-		    intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
-		    box_area = wh[..., 0] * wh[..., 1]
-		    anchor_area = anchors[..., 0] * anchors[..., 1]
-		    iou = intersect_area / (box_area + anchor_area - intersect_area)
+        for b in range(m):
+            # Discard zero rows.
+            wh = boxes_wh[b, valid_mask[b]]
+            if len(wh)==0: continue
+            # Expand dim to apply broadcasting.
+            wh = np.expand_dims(wh, -2)
+            box_maxes = wh / 2.
+            box_mins = -box_maxes
 
-		    # Find best anchor for each true box
-		    best_anchor = np.argmax(iou, axis=-1)
+            intersect_mins = np.maximum(box_mins, anchor_mins)
+            intersect_maxes = np.minimum(box_maxes, anchor_maxes)
+            intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
+            intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
+            box_area = wh[..., 0] * wh[..., 1]
+            anchor_area = anchors[..., 0] * anchors[..., 1]
+            iou = intersect_area / (box_area + anchor_area - intersect_area)
 
-		    for t, n in enumerate(best_anchor):
-		        for l in range(num_layers):
-		            if n in anchor_mask[l]:
-		                i = np.floor(true_boxes[b,t,0]*grid_shapes[l][1]).astype('int32')
-		                j = np.floor(true_boxes[b,t,1]*grid_shapes[l][0]).astype('int32')
-		                k = anchor_mask[l].index(n)
-		                c = true_boxes[b,t, 4].astype('int32')
-		                class_labels.append(c)
-		                bounding_boxes.append(list(true_boxes[b,t,0:4]))
-		                y_true[l][b, j, i, k, 0:4] = true_boxes[b,t, 0:4]
-		                y_true[l][b, j, i, k, 4] = 1
-		                y_true[l][b, j, i, k, 5+c] = 1
+            # Find best anchor for each true box
+            best_anchor = np.argmax(iou, axis=-1)
 
-		return bounding_boxes, class_labels
+            for t, n in enumerate(best_anchor):
+                for l in range(num_layers):
+                    if n in anchor_mask[l]:
+                        i = np.floor(true_boxes[b,t,0]*grid_shapes[l][1]).astype('int32')
+                        j = np.floor(true_boxes[b,t,1]*grid_shapes[l][0]).astype('int32')
+                        k = anchor_mask[l].index(n)
+                        c = true_boxes[b,t, 4].astype('int32')
+                        class_labels.append(c)
+                        bounding_boxes.append(list(true_boxes[b,t,0:4]))
+                        y_true[l][b, j, i, k, 0:4] = true_boxes[b,t, 0:4]
+                        y_true[l][b, j, i, k, 4] = 1
+                        y_true[l][b, j, i, k, 5+c] = 1
+
+        return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
         '''loads the classes'''
