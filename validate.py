@@ -37,10 +37,12 @@ class Validate():
         data_get = self.get_generator()
         
         # sanity check ############################################
+        '''        
         image, true_boxes, true_labels = next(iter(data_get))
         print(f'Shape of true boxes: {np.array(true_boxes).shape}')
         print(f'Shape of true labels: {np.array(true_labels).shape}')
         print(f'Shape of image: {image.shape}')
+        '''
         ###########################################################
         
         for i, (image, true_boxes, true_labels) in tqdm(enumerate(data_get)):
@@ -361,7 +363,7 @@ class Validate():
             #print('EMPTY BOXES')
             return -1
 
-        ious = list(map(lambda x: compute_iou(q_box, x), boxes))
+        ious = list(map(lambda x: self.compute_iou(q_box, x), boxes))
 
         max_iou_index = np.argmax( ious )
 
@@ -370,7 +372,7 @@ class Validate():
 
         return -1
 
-    def compute_iou(bb_1, bb_2):
+    def compute_iou(self, bb_1, bb_2):
 
         xa0, ya0, xa1, ya1 = bb_1
         xb0, yb0, xb1, yb1 = bb_2
