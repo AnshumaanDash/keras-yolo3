@@ -143,6 +143,7 @@ class Validate():
                 K.learning_phase(): 0
             })
         
+        '''
         font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
@@ -177,7 +178,7 @@ class Validate():
                 [tuple(text_origin), tuple(text_origin + label_size)],
                 fill=self.colors[c])
             draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-            del draw
+            del draw '''
         
         return out_boxes, out_scores, out_classes
 
