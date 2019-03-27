@@ -2,6 +2,7 @@ import numpy as np
 import keras.backend as K
 import colorsys
 import os
+from PIL import Image, ImageFont, ImageDraw
 from keras.layers import Input, Lambda
 from keras.models import load_model
 from yolo3.utils import get_random_data
