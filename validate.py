@@ -193,6 +193,7 @@ class Validate():
         batch_size = 1
 
         data_get = self.data_generator_wrapper(lines[num_train:], batch_size, self.input_shape, self.anchors, self.num_classes)
+        return data_get
 
     def data_generator(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
