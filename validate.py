@@ -8,7 +8,7 @@ from keras.models import load_model
 from yolo3.utils import get_random_data
 from yolo3.model import preprocess_true_boxes
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
 
 class Validate():
 
