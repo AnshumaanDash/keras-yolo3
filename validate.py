@@ -130,7 +130,7 @@ class Validate():
 
         return self._interp_ap(np.array(precision), np.array(recall))
         
-    def detect(self, image, y_pred):
+    def detect(self, image):
         
         # image_data = np.expand_dims(image, 0)
         
