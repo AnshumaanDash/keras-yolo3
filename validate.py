@@ -36,8 +36,9 @@ class Validate():
         data_get = self.get_generator()
         
         # sanity check ############################################
-        image, y_pred = next(iter(data_get))
-        print(f'Shape of y_pred: {y_pred.shape}')
+        image, true_boxes, true_labels = next(iter(data_get))
+        print(f'Shape of true boxes: {true_boxes.shape}')
+        print(f'Shape of true labels: {true_labels.shape}')
         print(f'Shape of image: {image.shape}')
         ###########################################################
         
