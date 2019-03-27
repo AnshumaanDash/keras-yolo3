@@ -37,8 +37,8 @@ class Validate():
         
         # sanity check ############################################
         image, true_boxes, true_labels = next(iter(data_get))
-        print(f'Shape of true boxes: {true_boxes.shape}')
-        print(f'Shape of true labels: {true_labels.shape}')
+        print(f'Shape of true boxes: {np.array(true_boxes).shape}')
+        print(f'Shape of true labels: {np.array(true_labels).shape}')
         print(f'Shape of image: {image.shape}')
         ###########################################################
         
