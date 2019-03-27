@@ -17,17 +17,15 @@ class Validate():
         self.classes_path = 'model_data/voc_classes.txt'
         self.anchors_path = 'model_data/yolo_anchors.txt'
         self.model_path = 'model_data/ep069-loss18.414-val_loss20.897.h5'
-        self.class_names = self.get_classes(classes_path)
-        self.num_classes = len(class_names)
-        self.anchors = self.get_anchors(anchors_path)
+        self.class_names = self.get_classes(self.classes_path)
+        self.num_classes = len(self.class_names)
+        self.anchors = self.get_anchors(self.anchors_path)
         self.score = 0.3
         self.iou = 0.45
 
         self.input_shape = (416,416) # multiple of 32, hw
         self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
-        
-        self.detect_all()
         
     def detect_all(self):
         
