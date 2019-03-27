@@ -8,7 +8,7 @@ from yolo3.model import preprocess_true_boxes
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from tqdm import tqdm_notebook as tqdm
 
-class Validate()
+class Validate():
 
     def __init__(self):
 
