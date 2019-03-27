@@ -138,8 +138,7 @@ class Validate():
             [self.boxes, self.scores, self.classes],
             feed_dict={
                 self.yolo_model.input: image,
-                # might need to change to self.input_shape[1], self.input_shape[0]
-                self.input_image_shape: [image.size[2], image.size[1]],
+                self.input_image_shape: [self.input_shape[1], self.input_shape[0]],
                 K.learning_phase(): 0
             })
         
