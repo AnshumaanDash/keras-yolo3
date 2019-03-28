@@ -394,8 +394,8 @@ class Validate():
             scale = min(w/iw, h/ih)
             nw = int(iw*scale)
             nh = int(ih*scale)
-            #dx = (w-nw)//2
-            #dy = (h-nh)//2
+            dx = (w-nw)//2
+            dy = (h-nh)//2
             image_data=0
             if proc_img:
                 image = image.resize((nw,nh), Image.BICUBIC)
