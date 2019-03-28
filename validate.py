@@ -46,7 +46,7 @@ class Validate():
         ###########################################################
         
         for i, (image, true_boxes, true_labels) in tqdm(enumerate(data_get)):
-            print(f'Iteration: {i}/{self.num_val}')
+            #print(f'Iteration: {i}/{self.num_val}')
             pred_boxes, conf, pred_labels = self.detect(image)
             
             sorted_inds = np.argsort(-conf)
@@ -192,7 +192,7 @@ class Validate():
 
 
     def get_generator(self):
-        val_split = 0.2
+        val_split = 0.5
         with open(self.annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
@@ -211,12 +211,12 @@ class Validate():
         n = len(annotation_lines)
         count = 0
         i = 0
-        while count<n:
+        while count<n+2:
             image_data = []
             box_data = []
             for b in range(batch_size):
-                if i==0:
-                    np.random.shuffle(annotation_lines)
+                #if i==0:
+                #    np.random.shuffle(annotation_lines)
                 image, box = get_random_data(annotation_lines[i], input_shape, random=False)
                 image_data.append(image)
                 box_data.append(box)
@@ -224,7 +224,6 @@ class Validate():
             image_data = np.array(image_data)
             box_data = np.array(box_data)
             bounding_boxes, class_labels = self.preprocess_true_boxes(box_data, input_shape, anchors, num_classes)
-            print(f'Inside generator: {i}')
             count += 1
             yield image_data, bounding_boxes, class_labels
 
