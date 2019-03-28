@@ -238,9 +238,11 @@ class Validate():
         class_labels: list containing class labels
         '''
         assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
-        print(f'True boxes: {true_boxes}')
-        bounding_boxes = []
-        class_labels = []
+        true_boxes = np.array(true_boxes)
+        true_boxes = true_boxes[~np.all(true_boxes==0, axis=1)]
+        bounding_boxes = true_boxes[...,0:4]
+        class_labels = true_boxes[...,4]
+        '''
         num_layers = len(anchors)//3 # default setting
         anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
 
@@ -297,6 +299,7 @@ class Validate():
 
         print(f'Bounding boxes : {bounding_boxes}')
         print(f'Class labels: {class_labels}')
+        '''
         return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
