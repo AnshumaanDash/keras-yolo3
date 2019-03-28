@@ -410,7 +410,8 @@ class Validate():
             box[:, [0,2]] = box[:, [0,2]]*scale #+ dx
             box[:, [1,3]] = box[:, [1,3]]*scale #+ dy
             box_data[:len(box)] = box
+            print(f'box_data:{box_data}')
 
-        return image_data, box_data
+            return image_data, box_data
 
 
