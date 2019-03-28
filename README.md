@@ -1061,6 +1061,16 @@ Remember to modify class path or anchor path, with <code>--classes class_file</c
   </div>
 </div>
 
+<<<<<<< HEAD
+=======
+## mAP Calculation
+1. Make sure you have run the annotation file.
+      For VOC, it is `python voc_annotation.py`
+
+2. Run the file  `python calculateMAP.py`
+
+---
+>>>>>>> 9ce84f8c242a732e26d38e622e3eb61f6d5acc1e
 
 
   <div id="ajax-error-message" class="ajax-error-message flash flash-error">
