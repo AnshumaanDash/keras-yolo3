@@ -295,8 +295,8 @@ class Validate():
                         y_true[l][b, j, i, k, 4] = 1
                         y_true[l][b, j, i, k, 5+c] = 1
 
-        print(f'Bounding box shape: {np.array(bounding_boxes).shape}')
-        print(f'Bounding box shape: {np.array(class_labels).shape}')
+        print(f'Bounding boxes : {bounding_boxes}')
+        print(f'Class labels: {class_labels}')
         return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
