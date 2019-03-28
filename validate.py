@@ -37,7 +37,7 @@ class Validate():
         
         for i, (image, true_boxes, true_labels) in tqdm(enumerate(data_get)):
             pred_boxes, conf, pred_labels = self.detect(image)
-            
+            pred_boxes[pred_boxes<0] = 0
             sorted_inds = np.argsort(-conf)
             repeat_mask = [True]*len(true_boxes)
             matched_labels = []
