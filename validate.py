@@ -238,7 +238,7 @@ class Validate():
         class_labels: list containing class labels
         '''
         assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
-
+        print(f'True boxes: {true_boxes}')
         bounding_boxes = []
         class_labels = []
         num_layers = len(anchors)//3 # default setting
