@@ -209,9 +209,8 @@ class Validate():
     def data_generator(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
         n = len(annotation_lines)
-        print(n)
         i = 0
-        while True:
+        while i<n:
             image_data = []
             box_data = []
             for b in range(batch_size):
