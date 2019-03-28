@@ -104,7 +104,7 @@ class Validate():
             print("AP( %s ): %.3f"%(class_label, ap))
 
         print('-------------------------------')
-        print("mAP: %.3f"%(np.mean(list(AP.values()))))
+        print("mAP: %.3f"%(np.mean(list(ap_dic.values()))))
     
     def _interp_ap(self, precision, recall):
 
