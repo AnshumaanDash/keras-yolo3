@@ -109,7 +109,7 @@ class Validate():
             
             iap += np.max( p_max if p_max.size > 0 else [0] )
 
-        return iap #/ 11
+        return iap / 11
 
 
     def compute_ap(self, detections, num_gts):
@@ -123,7 +123,7 @@ class Validate():
             return 0.
 
         for i in range(1, len(detections) + 1):
-
+            print(detections[:i][:,2])
             precision.append( np.sum(detections[:i][:,2]) / i )
             recall.append( np.sum(detections[:i][:,2]) / num_gts )
         
