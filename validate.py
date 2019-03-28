@@ -36,17 +36,7 @@ class Validate():
         detection_labels = np.array([0]*self.num_classes) 
         data_get = self.get_generator()
         
-        # sanity check ############################################
-        '''        
-        image, true_boxes, true_labels = next(iter(data_get))
-        print(f'Shape of true boxes: {np.array(true_boxes).shape}')
-        print(f'Shape of true labels: {np.array(true_labels).shape}')
-        print(f'Shape of image: {image.shape}')
-        '''
-        ###########################################################
-        
         for i, (image, true_boxes, true_labels) in tqdm(enumerate(data_get)):
-            #print(f'Iteration: {i}/{self.num_val}')
             pred_boxes, conf, pred_labels = self.detect(image)
             
             sorted_inds = np.argsort(-conf)
@@ -192,18 +182,18 @@ class Validate():
 
 
     def get_generator(self):
-        val_split = 0.5
+        #val_split = 0.5
         with open(self.annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
         np.random.shuffle(lines)
         np.random.seed(None)
-        num_val = int(len(lines)*val_split)
-        num_train = len(lines) - num_val
+        #num_val = int(len(lines)*val_split)
+        #num_train = len(lines) - num_val
         batch_size = 1
-        self.num_val = num_val
+        #self.num_val = num_val
 
-        data_get = self.data_generator_wrapper(lines[num_train:], batch_size, self.input_shape, self.anchors, self.num_classes)
+        data_get = self.data_generator_wrapper(lines, batch_size, self.input_shape, self.anchors, self.num_classes)
         return data_get
 
     def data_generator(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
