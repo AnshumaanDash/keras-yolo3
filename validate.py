@@ -46,6 +46,7 @@ class Validate():
         ###########################################################
         
         for i, (image, true_boxes, true_labels) in tqdm(enumerate(data_get)):
+            print(f'Iteration: {i}/{self.num_val}')
             pred_boxes, conf, pred_labels = self.detect(image)
             
             sorted_inds = np.argsort(-conf)
@@ -191,7 +192,7 @@ class Validate():
 
 
     def get_generator(self):
-        val_split = 0.4
+        val_split = 0.2
         with open(self.annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
@@ -200,6 +201,7 @@ class Validate():
         num_val = int(len(lines)*val_split)
         num_train = len(lines) - num_val
         batch_size = 1
+        self.num_val = num_val
 
         data_get = self.data_generator_wrapper(lines[num_train:], batch_size, self.input_shape, self.anchors, self.num_classes)
         return data_get
@@ -338,6 +340,7 @@ class Validate():
         print('{} model, anchors, and classes loaded.'.format(self.model_path))
 
         # Generate colors for drawing bounding boxes.
+        '''
         hsv_tuples = [(x / len(self.class_names), 1., 1.)
                       for x in range(len(self.class_names))]
         self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
@@ -347,7 +350,7 @@ class Validate():
         np.random.seed(10101)  # Fixed seed for consistent colors across runs.
         np.random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
         np.random.seed(None)  # Reset seed to default.
-
+        '''
         # Generate output tensor targets for filtered bounding boxes.
         self.input_image_shape = K.placeholder(shape=(2, ))
         if self.gpu_num>=2:
