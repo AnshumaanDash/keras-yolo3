@@ -5,7 +5,6 @@ import os
 from PIL import Image, ImageFont, ImageDraw
 from keras.layers import Input, Lambda
 from keras.models import load_model
-from yolo3.utils import get_random_data
 from yolo3.model import preprocess_true_boxes
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from tqdm import tqdm
@@ -23,7 +22,7 @@ class Validate():
         self.num_classes = len(self.class_names)
         self.anchors = self.get_anchors(self.anchors_path)
         self.score = 0.3
-        self.iou = 0.45
+        self.iou = 0.5
         self.gpu_num = 1
 
         self.input_shape = (416,416) # multiple of 32, hw
@@ -62,9 +61,6 @@ class Validate():
                 index_subset = global_index[(repeat_mask)&(label_mask)]
                 #print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
-                #############################################################
-                print(f'true box subset: {true_boxes_subset}')
-                print(f'pred box : {pred_boxes}')
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
@@ -143,43 +139,6 @@ class Validate():
                 K.learning_phase(): 0
             })
         
-        '''
-        font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
-                    size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
-        thickness = (image.size[0] + image.size[1]) // 300
-
-        for i, c in reversed(list(enumerate(out_classes))):
-            predicted_class = self.class_names[c]
-            box = out_boxes[i]
-            score = out_scores[i]
-
-            label = '{} {:.2f}'.format(predicted_class, score)
-            draw = ImageDraw.Draw(image)
-            label_size = draw.textsize(label, font)
-
-            top, left, bottom, right = box
-            top = max(0, np.floor(top + 0.5).astype('int32'))
-            left = max(0, np.floor(left + 0.5).astype('int32'))
-            bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-            right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            print(label, (left, top), (right, bottom))
-
-            if top - label_size[1] >= 0:
-                text_origin = np.array([left, top - label_size[1]])
-            else:
-                text_origin = np.array([left, top + 1])
-
-            # My kingdom for a good redistributable image drawing library.
-            for i in range(thickness):
-                draw.rectangle(
-                    [left + i, top + i, right - i, bottom - i],
-                    outline=self.colors[c])
-            draw.rectangle(
-                [tuple(text_origin), tuple(text_origin + label_size)],
-                fill=self.colors[c])
-            draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-            del draw '''
-        
         return out_boxes, out_scores, out_classes
 
 
@@ -243,64 +202,6 @@ class Validate():
         true_boxes = true_boxes[~np.all(true_boxes==0, axis=1)]
         bounding_boxes = true_boxes[...,0:4]
         class_labels = true_boxes[...,4]
-        '''
-        num_layers = len(anchors)//3 # default setting
-        anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]]
-
-        true_boxes = np.array(true_boxes, dtype='float32')
-        input_shape = np.array(input_shape, dtype='int32')
-        boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
-        boxes_wh = true_boxes[..., 2:4] - true_boxes[..., 0:2]
-        true_boxes[..., 0:2] = boxes_xy/input_shape[::-1]
-        true_boxes[..., 2:4] = boxes_wh/input_shape[::-1]
-
-        m = true_boxes.shape[0]
-        grid_shapes = [input_shape//{0:32, 1:16, 2:8}[l] for l in range(num_layers)]
-        y_true = [np.zeros((m,grid_shapes[l][0],grid_shapes[l][1],len(anchor_mask[l]),5+num_classes),
-            dtype='float32') for l in range(num_layers)]
-
-        # Expand dim to apply broadcasting.
-        anchors = np.expand_dims(anchors, 0)
-        anchor_maxes = anchors / 2.
-        anchor_mins = -anchor_maxes
-        valid_mask = boxes_wh[..., 0]>0
-
-        for b in range(m):
-            # Discard zero rows.
-            wh = boxes_wh[b, valid_mask[b]]
-            if len(wh)==0: continue
-            # Expand dim to apply broadcasting.
-            wh = np.expand_dims(wh, -2)
-            box_maxes = wh / 2.
-            box_mins = -box_maxes
-
-            intersect_mins = np.maximum(box_mins, anchor_mins)
-            intersect_maxes = np.minimum(box_maxes, anchor_maxes)
-            intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
-            intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
-            box_area = wh[..., 0] * wh[..., 1]
-            anchor_area = anchors[..., 0] * anchors[..., 1]
-            iou = intersect_area / (box_area + anchor_area - intersect_area)
-
-            # Find best anchor for each true box
-            best_anchor = np.argmax(iou, axis=-1)
-
-            for t, n in enumerate(best_anchor):
-                for l in range(num_layers):
-                    if n in anchor_mask[l]:
-                        i = np.floor(true_boxes[b,t,0]*grid_shapes[l][1]).astype('int32')
-                        j = np.floor(true_boxes[b,t,1]*grid_shapes[l][0]).astype('int32')
-                        k = anchor_mask[l].index(n)
-                        c = true_boxes[b,t, 4].astype('int32')
-                        class_labels.append(c)
-                        bounding_boxes.append(list(true_boxes[b,t,0:4]))
-                        y_true[l][b, j, i, k, 0:4] = true_boxes[b,t, 0:4]
-                        y_true[l][b, j, i, k, 4] = 1
-                        y_true[l][b, j, i, k, 5+c] = 1
-
-        print(f'Bounding boxes : {bounding_boxes}')
-        print(f'Class labels: {class_labels}')
-        '''
         return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
@@ -338,18 +239,6 @@ class Validate():
 
         print('{} model, anchors, and classes loaded.'.format(self.model_path))
 
-        # Generate colors for drawing bounding boxes.
-        '''
-        hsv_tuples = [(x / len(self.class_names), 1., 1.)
-                      for x in range(len(self.class_names))]
-        self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
-        self.colors = list(
-            map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
-                self.colors))
-        np.random.seed(10101)  # Fixed seed for consistent colors across runs.
-        np.random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
-        np.random.seed(None)  # Reset seed to default.
-        '''
         # Generate output tensor targets for filtered bounding boxes.
         self.input_image_shape = K.placeholder(shape=(2, ))
         if self.gpu_num>=2:
@@ -413,8 +302,8 @@ class Validate():
             if len(box)>0:
                 np.random.shuffle(box)
             if len(box)>max_boxes: box = box[:max_boxes]
-            box[:, [0,2]] = box[:, [0,2]]*scale + dx
-            box[:, [1,3]] = box[:, [1,3]]*scale + dy
+            box[:, [0,2]] = box[:, [0,2]]*scale
+            box[:, [1,3]] = box[:, [1,3]]*scale
             box_data[:len(box)] = box
 
             return image_data, box_data
