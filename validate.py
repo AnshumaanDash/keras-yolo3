@@ -44,7 +44,7 @@ class Validate():
             matched_labels = []
             global_index = np.arange(len(true_labels))
             true_boxes = np.array(true_boxes)
-            true_labels = np.array(true_labels)
+            true_labels = true_labels.astype(int)
 
             image_results = []
             image_labels = [0]*self.num_classes
