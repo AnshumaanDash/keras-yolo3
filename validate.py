@@ -82,7 +82,6 @@ class Validate():
         for class_ind, num_gts in enumerate(detection_labels):
             
             class_detections = detection_results[detection_results[:,0]==class_ind]
-            print(f'Class detections: {class_detections}')
             
             ap = self.compute_ap(class_detections, num_gts)
 
@@ -117,9 +116,6 @@ class Validate():
 
         detections_sort_indx = np.argsort(-detections[:,1])
         detections = detections[detections_sort_indx]
-        print(f'Detections index sorted {detections}')
-        print(f'Num gts: {num_gts}')
-
         precision = []
         recall = []
 
@@ -130,7 +126,9 @@ class Validate():
 
             precision.append( np.sum(detections[:i][:,2]) / i )
             recall.append( np.sum(detections[:i][:,2]) / num_gts )
-
+        
+        print(f'Precision: {precision}')
+        print(f'Recall: {Recall}')
         return self._interp_ap(np.array(precision), np.array(recall))
         
     def detect(self, image):
