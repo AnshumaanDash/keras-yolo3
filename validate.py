@@ -62,8 +62,9 @@ class Validate():
                 index_subset = global_index[(repeat_mask)&(label_mask)]
                 #print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
-                print(f'true box subset: {true_boxes_subset}')
-                print(f'pred box : {pred_boxes}')
+                #############################################################
+                #print(f'true box subset: {true_boxes_subset}')
+                #print(f'pred box : {pred_boxes}')
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
@@ -294,8 +295,8 @@ class Validate():
                         y_true[l][b, j, i, k, 4] = 1
                         y_true[l][b, j, i, k, 5+c] = 1
 
-        print('Bounding box shape: {np.array(bounding_boxes).shape}')
-        print('Bounding box shape: {np.array(class_labels).shape}')
+        print(f'Bounding box shape: {np.array(bounding_boxes).shape}')
+        print(f'Bounding box shape: {np.array(class_labels).shape}')
         return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
