@@ -294,6 +294,8 @@ class Validate():
                         y_true[l][b, j, i, k, 4] = 1
                         y_true[l][b, j, i, k, 5+c] = 1
 
+        print(np.array('Bounding box shape: {np.array(bounding_boxes).shape}')
+        print(np.array('Bounding box shape: {np.array(class_labels).shape}')
         return bounding_boxes, class_labels
 
     def get_classes(self, classes_path):
@@ -392,9 +394,8 @@ class Validate():
             scale = min(w/iw, h/ih)
             nw = int(iw*scale)
             nh = int(ih*scale)
-            print(f'nw:{nw} nh:{nh}')
-            dx = (w-nw)//2
-            dy = (h-nh)//2
+            #dx = (w-nw)//2
+            #dy = (h-nh)//2
             image_data=0
             if proc_img:
                 image = image.resize((nw,nh), Image.BICUBIC)
@@ -410,7 +411,6 @@ class Validate():
             box[:, [0,2]] = box[:, [0,2]]*scale #+ dx
             box[:, [1,3]] = box[:, [1,3]]*scale #+ dy
             box_data[:len(box)] = box
-            print(f'box_data:{box_data}')
 
             return image_data, box_data
 
