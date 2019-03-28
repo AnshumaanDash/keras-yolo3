@@ -239,6 +239,7 @@ class Validate():
         '''
         assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
         true_boxes = np.array(true_boxes)
+        print(f'True boxes shape : {true_boxes.shape}')
         true_boxes = true_boxes[~np.all(true_boxes==0, axis=1)]
         bounding_boxes = true_boxes[...,0:4]
         class_labels = true_boxes[...,4]
