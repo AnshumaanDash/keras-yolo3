@@ -81,7 +81,8 @@ class Validate():
         ap_dic = {}
         for class_ind, num_gts in enumerate(detection_labels):
             
-            class_detections = detection_results[detection_results[:,0]==class_ind]            
+            class_detections = detection_results[detection_results[:,0]==class_ind]
+            print(f'Class detections: {class_detections}')
             
             ap = self.compute_ap(class_detections, num_gts)
 
@@ -116,6 +117,8 @@ class Validate():
 
         detections_sort_indx = np.argsort(-detections[:,1])
         detections = detections[detections_sort_indx]
+        print(f'Detections index sorted {detections}')
+        print(f'Num gts: {num_gts}')
 
         precision = []
         recall = []
