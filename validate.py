@@ -383,6 +383,7 @@ class Validate():
         line = annotation_line.split()
         image = Image.open(line[0])
         iw, ih = image.size
+        print(f'iw:{iw} ih:{ih}')
         h, w = input_shape
         box = np.array([np.array(list(map(int,box.split(',')))) for box in line[1:]])
 
