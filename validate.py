@@ -302,8 +302,8 @@ class Validate():
             if len(box)>0:
                 np.random.shuffle(box)
             if len(box)>max_boxes: box = box[:max_boxes]
-            box[:, [0,2]] = box[:, [0,2]]*scale
-            box[:, [1,3]] = box[:, [1,3]]*scale
+            box[:, [0,2]] = box[:, [0,2]]*scale + dx
+            box[:, [1,3]] = box[:, [1,3]]*scale + dy
             box_data[:len(box)] = box
 
             return image_data, box_data
