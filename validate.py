@@ -76,6 +76,7 @@ class Validate():
         
         
         detection_results = np.array(detection_results)
+        print(len(detection_results))
 
         ap_dic = {}
         for class_ind, num_gts in enumerate(detection_labels):
@@ -182,18 +183,17 @@ class Validate():
 
 
     def get_generator(self):
-        #val_split = 0.5
+        val_split = 0.5
         with open(self.annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
         np.random.shuffle(lines)
         np.random.seed(None)
-        #num_val = int(len(lines)*val_split)
-        #num_train = len(lines) - num_val
+        num_val = int(len(lines)*val_split)
+        num_train = len(lines) - num_val
         batch_size = 1
-        #self.num_val = num_val
 
-        data_get = self.data_generator_wrapper(lines, batch_size, self.input_shape, self.anchors, self.num_classes)
+        data_get = self.data_generator_wrapper(lines[num_train:], batch_size, self.input_shape, self.anchors, self.num_classes)
         return data_get
 
     def data_generator(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
