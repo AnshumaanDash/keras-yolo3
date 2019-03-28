@@ -76,7 +76,6 @@ class Validate():
         
         
         detection_results = np.array(detection_results)
-        print(len(detection_results))
 
         ap_dic = {}
         for class_ind, num_gts in enumerate(detection_labels):
@@ -123,7 +122,6 @@ class Validate():
             return 0.
 
         for i in range(1, len(detections) + 1):
-            print(detections[:i][:,2])
             precision.append( np.sum(detections[:i][:,2]) / i )
             recall.append( np.sum(detections[:i][:,2]) / num_gts )
         
