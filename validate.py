@@ -63,8 +63,8 @@ class Validate():
                 #print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
                 #############################################################
-                #print(f'true box subset: {true_boxes_subset}')
-                #print(f'pred box : {pred_boxes}')
+                print(f'true box subset: {true_boxes_subset}')
+                print(f'pred box : {pred_boxes}')
                 idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
