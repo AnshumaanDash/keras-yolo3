@@ -209,8 +209,9 @@ class Validate():
     def data_generator(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
         n = len(annotation_lines)
+        count = 0
         i = 0
-        while i<n:
+        while count<n:
             image_data = []
             box_data = []
             for b in range(batch_size):
@@ -224,6 +225,7 @@ class Validate():
             box_data = np.array(box_data)
             bounding_boxes, class_labels = self.preprocess_true_boxes(box_data, input_shape, anchors, num_classes)
             print(f'Inside generator: {i}')
+            count += 1
             yield image_data, bounding_boxes, class_labels
 
     def data_generator_wrapper(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
