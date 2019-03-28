@@ -70,7 +70,8 @@ class Validate():
                     repeat_mask[idx] = False
 
                 image_results.append([pred_labels[i], conf[i], 1 if idx != -1 else 0])
-
+            print(f'image results length: {len(image_results)}')
+            print(f'true boxes length: {len(true_boxes)}')
             print(f'image results: {image_results}')
             print(f'true boxes: {true_boxes}')
             detection_results.extend(image_results)
