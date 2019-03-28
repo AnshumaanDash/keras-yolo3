@@ -223,6 +223,7 @@ class Validate():
             image_data = np.array(image_data)
             box_data = np.array(box_data)
             bounding_boxes, class_labels = self.preprocess_true_boxes(box_data, input_shape, anchors, num_classes)
+            print(f'Inside generator: {i}')
             yield image_data, bounding_boxes, class_labels
 
     def data_generator_wrapper(self, annotation_lines, batch_size, input_shape, anchors, num_classes):
