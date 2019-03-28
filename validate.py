@@ -94,7 +94,7 @@ class Validate():
             
             ap = self.compute_ap(class_detections, num_gts)
 
-            ap_dic[self.class_labels[class_ind]] = ap
+            ap_dic[self.class_names[class_ind]] = ap
             
         
         _AP_items = [[class_label, ap] for class_label, ap in ap_dic.items()]
