@@ -61,7 +61,7 @@ class Validate():
                 index_subset = global_index[(repeat_mask)&(label_mask)]
                 #print(f'index subset: {index_subset}')
                 true_boxes_subset = true_boxes[(repeat_mask)&(label_mask)]
-                idx = self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
+                idx = i#self._find_detection(pred_boxes[i], true_boxes_subset, index_subset)
 
                 if idx != -1: 
                     matched_labels.append(idx)
