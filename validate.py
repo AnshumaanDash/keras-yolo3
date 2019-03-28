@@ -109,7 +109,7 @@ class Validate():
             
             iap += np.max( p_max if p_max.size > 0 else [0] )
 
-        return iap / 11
+        return iap #/ 11
 
 
     def compute_ap(self, detections, num_gts):
@@ -127,8 +127,8 @@ class Validate():
             precision.append( np.sum(detections[:i][:,2]) / i )
             recall.append( np.sum(detections[:i][:,2]) / num_gts )
         
-        print(f'Precision: {precision}')
-        print(f'Recall: {Recall}')
+        #print(f'Precision: {precision}')
+        #print(f'Recall: {recall}')
         return self._interp_ap(np.array(precision), np.array(recall))
         
     def detect(self, image):
