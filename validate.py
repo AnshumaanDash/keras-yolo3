@@ -71,14 +71,13 @@ class Validate():
 
                 image_results.append([pred_labels[i], conf[i], 1 if idx != -1 else 0])
 
-            print(f'image_labels: {image_labels}')
-            print(f'true labels: {true_labels}')
             detection_results.extend(image_results)
             detection_labels += np.array(image_labels)
         
         
         detection_results = np.array(detection_results)
 
+        print(f'total labels: {detection_labels}')
         ap_dic = {}
         for class_ind, num_gts in enumerate(detection_labels):
             
