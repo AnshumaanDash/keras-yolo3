@@ -269,8 +269,11 @@ class Validate():
 
         xa0, ya0, xa1, ya1 = bb_1
         xb0, yb0, xb1, yb1 = bb_2
+        
+        height = (min([ya1, yb1]) - max([ya0, yb0]))
+        width = (min([xa1, xb1]) - max([xa0, xb0]))
 
-        intersec = (min([xa1, xb1]) - max([xa0, xb0]))*(min([ya1, yb1]) - max([ya0, yb0]))
+        intersec = height*width if (height>0 and width>0) else 0
 
         union = (xa1 - xa0)*(ya1 - ya0) + (xb1 - xb0)*(yb1 - yb0) - intersec
 
