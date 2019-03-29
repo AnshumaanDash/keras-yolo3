@@ -72,7 +72,8 @@ class Validate():
             detection_results.extend(image_results)
             detection_labels += np.array(image_labels)
         
-        
+        print(f'detection results:{detection_results}')
+        print(f'detection labels:{detection_labels}')
         detection_results = np.array(detection_results)
 
         ap_dic = {}
