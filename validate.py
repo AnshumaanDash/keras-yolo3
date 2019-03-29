@@ -256,7 +256,6 @@ class Validate():
             return -1
 
         ious = list(map(lambda x: self.compute_iou(q_box, x), boxes))
-        print(f'ious:{ious}')
 
         max_iou_index = np.argmax( ious )
 
