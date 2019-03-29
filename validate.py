@@ -67,7 +67,7 @@ class Validate():
                     matched_labels.append(idx)
                     repeat_mask[idx] = False
 
-                image_results.append([pred_labels[i], conf[i], 1)# if idx != -1 else 0])
+                image_results.append([pred_labels[i], conf[i], 1])# if idx != -1 else 0])
             
             detection_results.extend(image_results)
             detection_labels += np.array(image_labels)
