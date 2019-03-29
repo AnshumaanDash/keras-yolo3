@@ -22,7 +22,7 @@ class Validate():
         self.num_classes = len(self.class_names)
         self.anchors = self.get_anchors(self.anchors_path)
         self.score = 0.3
-        self.iou = 0.5
+        self.iou = 0.2
         self.gpu_num = 1
 
         self.input_shape = (416,416) # multiple of 32, hw
@@ -67,7 +67,7 @@ class Validate():
                     matched_labels.append(idx)
                     repeat_mask[idx] = False
 
-                image_results.append([pred_labels[i], conf[i], 1])# if idx != -1 else 0])
+                image_results.append([pred_labels[i], conf[i], 1 if idx != -1 else 0])
             
             detection_results.extend(image_results)
             detection_labels += np.array(image_labels)
