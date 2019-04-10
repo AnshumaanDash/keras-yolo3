@@ -279,7 +279,7 @@ class Validate():
 
         return intersec / union
 
-    def get_random_data(self, annotation_line, input_shape, random=False, max_boxes=20, proc_img=True):
+    def get_random_data(self, annotation_line, input_shape, random=False, max_boxes=25, proc_img=True):
         '''random preprocessing for real-time data augmentation'''
         line = annotation_line.split()
         image = Image.open(line[0])
