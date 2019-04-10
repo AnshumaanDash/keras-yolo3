@@ -284,21 +284,22 @@ class Validate():
         image = Image.open(line[0])
         iw, ih = image.size
         
-        h, w = input_shape
         box = np.array([np.array(list(map(int,box.split(',')))) for box in line[1:]])
 
         if not random:
             # resize image
+            new_image_size = (image.width - (image.width % 32),
+                              image.height - (image.height % 32))
+           
+            w, h = new_image_size
             scale = min(w/iw, h/ih)
             nw = int(iw*scale)
             nh = int(ih*scale)
-            dx = (w-nw)//2
-            dy = (h-nh)//2
             image_data=0
             if proc_img:
                 image = image.resize((nw,nh), Image.BICUBIC)
                 new_image = Image.new('RGB', (w,h), (128,128,128))
-                new_image.paste(image, (dx, dy))
+                new_image.paste(image, ((w-nw)//2, (h-nh)//2))
                 image_data = np.array(new_image)/255.
 
             # correct boxes
