@@ -266,7 +266,8 @@ class Validate():
 
     def compute_iou(self, bb_1, bb_2):
 
-        xa0, ya0, xa1, ya1 = bb_1
+        #xa0, ya0, xa1, ya1 = bb_1
+        ya0, xa0, ya1, xa1 = bb_1
         xb0, yb0, xb1, yb1 = bb_2
         
         height = (min([ya1, yb1]) - max([ya0, yb0]))
