@@ -270,6 +270,11 @@ class Validate():
         ya0, xa0, ya1, xa1 = bb_1
         xb0, yb0, xb1, yb1 = bb_2
         
+        ya0 = max(0, np.floor(ya0 + 0.5).astype('int32'))
+        xa0 = max(0, np.floor(xa0 + 0.5).astype('int32'))
+        ya1 = min(self.h, np.floor(ya1 + 0.5).astype('int32'))
+        xa1 = min(self.w, np.floor(xa1 + 0.5).astype('int32'))
+        
         height = (min([ya1, yb1]) - max([ya0, yb0]))
         width = (min([xa1, xb1]) - max([xa0, xb0]))
 
@@ -293,6 +298,7 @@ class Validate():
                               image.height - (image.height % 32))
            
             w, h = new_image_size
+            self.w, self.h = w, h
             scale = min(w/iw, h/ih)
             nw = int(iw*scale)
             nh = int(ih*scale)
